@@ -27,7 +27,15 @@ public class CalculateSales {
 		HashMap<String, Long> commodityMoney = new HashMap<String, Long>();
 
 		BufferedReader br = null;
+
+
+
 		try {
+			if (args.length != 1) {
+				System.out.println("予期せぬエラーが発生しました");
+				return;
+			}
+
 			File file = new File(args[0], "branch.lst");
 			if (!file.exists()) {
 				System.out.println("支店定義ファイルが存在しません");
@@ -169,7 +177,7 @@ public class CalculateSales {
 				String branchSales = String.valueOf(branchSalesLong);
 				// matches は String型のみ
 				if (branchSales.matches("^[0-9]{10,}$")) {
-					System.out.println("合計ファイルが10桁を超えました");
+					System.out.println("合計金額が10桁を超えました");
 					return;
 				}
 
@@ -177,7 +185,7 @@ public class CalculateSales {
 				commodityMoney.put((rcd3Lines.get(1)), (commodityMoney.get(rcd3Lines.get(1))) + commoditySalesLong);
 				String commoditySales = String.valueOf(commoditySalesLong);
 				if (branchSales.matches("^[0-9]{10,}$")) {
-					System.out.println("合計ファイルが10桁を超えました");
+					System.out.println("合計金額が10桁を超えました");
 					return;
 				}
 			} catch (IOException e) {
@@ -185,6 +193,7 @@ public class CalculateSales {
 				return;
 			} catch (NumberFormatException e) {
 				System.out.println("予期せぬエラーが発生しました");
+				return;
 			}	finally {
 				try {
 					if(br != null){
