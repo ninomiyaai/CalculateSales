@@ -20,11 +20,11 @@ public class CalculateSales {
 		// 支店コード・支店名
 		HashMap<String, String> branchFile = new HashMap<String, String>();
 		// 支店コード・支店金額
-		HashMap<String, Integer> branchMoney = new HashMap<String, Integer>();
+		HashMap<String, Long> branchMoney = new HashMap<String, Long>();
 		// 商品コード・商品名
 		HashMap<String, String> commodityFile = new HashMap<String, String>();
 		// 商品コード・商品金額
-		HashMap<String, Integer> commodityMoney = new HashMap<String, Integer>();
+		HashMap<String, Long> commodityMoney = new HashMap<String, Long>();
 
 		BufferedReader br = null;
 		try {
@@ -52,14 +52,16 @@ public class CalculateSales {
 					return;
 				}
 				branchFile.put(branchData[0], branchData[1]);
-				branchMoney.put(branchData[0], 0);
+				branchMoney.put(branchData[0], (long)0);
 			}
 		} catch (IOException e) {
 			System.out.println("予期せぬエラーが発生しました");
 			return;
 		} finally {
 			try {
-				br.close();
+				if(br != null){
+					br.close();
+				}
 			} catch (IOException e) {
 				System.out.println("予期せぬエラーが発生しました");
 				return;
@@ -86,7 +88,7 @@ public class CalculateSales {
 					return;
 				}
 				commodityFile.put(commodityData[0], commodityData[1]);
-				commodityMoney.put(commodityData[0], 0);
+				commodityMoney.put(commodityData[0], (long)0);
 			}
 
 		} catch (IOException e) {
@@ -94,7 +96,9 @@ public class CalculateSales {
 			return;
 		} finally {
 			try {
-				br.close();
+				if(br != null){
+					br.close();
+				}
 			} catch (IOException e) {
 				System.out.println("予期せぬエラーが発生しました");
 				return;
@@ -160,18 +164,18 @@ public class CalculateSales {
 				// 支店金額マップ.put((支店コード),(支店金額 + 売上額);
 				// 支店コード rcd3Lines.get(0) = branchData[0]
 				// 支店金額は支店金額マップの value なので(金額マップ.get(object k))
-				int branchSalesInt = Integer.parseInt(rcd3Lines.get(2));
-				branchMoney.put((rcd3Lines.get(0)), (branchMoney.get(rcd3Lines.get(0))) + branchSalesInt);
-				String branchSales = Integer.toString(branchSalesInt);
+				long branchSalesLong = Long.parseLong(rcd3Lines.get(2));
+				branchMoney.put((rcd3Lines.get(0)), (branchMoney.get(rcd3Lines.get(0))) + branchSalesLong);
+				String branchSales = String.valueOf(branchSalesLong);
 				// matches は String型のみ
 				if (branchSales.matches("^[0-9]{10,}$")) {
 					System.out.println("合計ファイルが10桁を超えました");
 					return;
 				}
 
-				int commoditySalesInt = Integer.parseInt(rcd3Lines.get(2));
-				commodityMoney.put((rcd3Lines.get(1)), (commodityMoney.get(rcd3Lines.get(1))) + commoditySalesInt);
-				String commoditySales = Integer.toString(commoditySalesInt);
+				long commoditySalesLong = Long.parseLong(rcd3Lines.get(2));
+				commodityMoney.put((rcd3Lines.get(1)), (commodityMoney.get(rcd3Lines.get(1))) + commoditySalesLong);
+				String commoditySales = String.valueOf(commoditySalesLong);
 				if (branchSales.matches("^[0-9]{10,}$")) {
 					System.out.println("合計ファイルが10桁を超えました");
 					return;
@@ -179,9 +183,13 @@ public class CalculateSales {
 			} catch (IOException e) {
 				System.out.println("予期せぬエラーが発生しました");
 				return;
-			} finally {
+			} catch (NumberFormatException e) {
+				System.out.println("予期せぬエラーが発生しました");
+			}	finally {
 				try {
-					br.close();
+					if(br != null){
+						br.close();
+					}
 				} catch (IOException e) {
 					System.out.println("予期せぬエラーが発生しました");
 					return;
@@ -190,10 +198,10 @@ public class CalculateSales {
 		}
 
 		// sortする
-		List<Map.Entry<String, Integer>> branchAll = new ArrayList<Map.Entry<String, Integer>>(branchMoney.entrySet());
-		Collections.sort(branchAll, new Comparator<Map.Entry<String, Integer>>() {
-			public int compare(Entry<String, Integer> entry1, Entry<String, Integer> entry2) {
-				return ((Integer) entry2.getValue()).compareTo((Integer) entry1.getValue());
+		List<Map.Entry<String, Long>> branchAll = new ArrayList<Map.Entry<String, Long>>(branchMoney.entrySet());
+		Collections.sort(branchAll, new Comparator<Map.Entry<String, Long>>() {
+			public int compare(Entry<String, Long> entry1, Entry<String, Long> entry2) {
+				return ((Long) entry2.getValue()).compareTo((Long) entry1.getValue());
 			}
 		});
 
@@ -206,7 +214,7 @@ public class CalculateSales {
 			FileWriter fw = new FileWriter(file);
 			bw = new BufferedWriter(fw);
 
-			for (Entry<String, Integer> s : branchAll) {
+			for (Entry<String, Long> s : branchAll) {
 				bw.write(s.getKey() + "," + branchFile.get(s.getKey()) + "," + s.getValue()
 						+ System.getProperty("line.separator"));
 			}
@@ -215,18 +223,20 @@ public class CalculateSales {
 			return;
 		} finally {
 			try {
-				bw.close();
+				if(bw != null){
+					bw.close();
+				}
 			} catch (IOException e) {
 				System.out.println("予期せぬエラーが発生しました");
 				return;
 			}
 		}
 
-		List<Map.Entry<String, Integer>> commodityAll = new ArrayList<Map.Entry<String, Integer>>(
+		List<Map.Entry<String, Long>> commodityAll = new ArrayList<Map.Entry<String, Long>>(
 				commodityMoney.entrySet());
-		Collections.sort(commodityAll, new Comparator<Map.Entry<String, Integer>>() {
-			public int compare(Entry<String, Integer> entry1, Entry<String, Integer> entry2) {
-				return ((Integer) entry2.getValue()).compareTo((Integer) entry1.getValue());
+		Collections.sort(commodityAll, new Comparator<Map.Entry<String, Long>>() {
+			public int compare(Entry<String, Long> entry1, Entry<String, Long> entry2) {
+				return ((Long) entry2.getValue()).compareTo((Long) entry1.getValue());
 			}
 		});
 
@@ -237,7 +247,7 @@ public class CalculateSales {
 			}
 			FileWriter fw = new FileWriter(file);
 			bw = new BufferedWriter(fw);
-			for (Entry<String, Integer> s : commodityAll) {
+			for (Entry<String, Long> s : commodityAll) {
 				bw.write(s.getKey() + "," + commodityFile.get(s.getKey()) + "," + s.getValue()
 						+ System.getProperty("line.separator"));
 			}
@@ -246,7 +256,9 @@ public class CalculateSales {
 			return;
 		} finally {
 			try {
-				bw.close();
+				if(bw != null){
+					bw.close();
+				}
 			} catch (IOException e) {
 				System.out.println("予期せぬエラーが発生しました");
 				return;
