@@ -37,10 +37,12 @@ public class CalculateSales {
 			return;
 		}
 
-		if((input(args[0], "branch.lst",  "^[0-9]{3}$", branchFile, branchMoney)) == false) {
+		if((input(args[0], "branch.lst",  "^[0-9]{3}$", branchFile, branchMoney,
+				"支店定義ファイル")) == false) {
 			return;
 		}
-		if((input(args[0], "commodity.lst", "^[0-9a-zA-Z]{8}$", commodityFile, commodityMoney)) == false) {
+		if((input(args[0], "commodity.lst", "^[0-9a-zA-Z]{8}$", commodityFile, commodityMoney,
+				"商品定義ファイル")) == false) {
 			return;
 		}
 
@@ -146,14 +148,14 @@ public class CalculateSales {
 	}
 
 
-	public static boolean input(String CalculateSalesDir, String lstFile,
-			String lstFileFormat, HashMap<String, String> fileMap, HashMap<String, Long> moneyMap) {
+	public static boolean input(String CalculateSalesDir, String lstFile,String lstFileFormat,
+			HashMap<String, String> fileMap, HashMap<String, Long> moneyMap, String fileName) {
 
 		BufferedReader br = null;
 		try {
 			File file = new File(CalculateSalesDir, lstFile);
 			if (!file.exists()) {
-				System.out.println("支店定義ファイルが存在しません");
+				System.out.println(fileName + "が存在しません");
 				return false;
 			}
 			br = new BufferedReader(new FileReader(file));
@@ -166,13 +168,13 @@ public class CalculateSales {
 				// 支店名にカンマ、改行があるかチェック
 				// 要素数が2と決まってるので(要素数 != 2)
 				if (data.length != 2) {
-					System.out.println("支店定義ファイルのフォーマットが不正です");
+					System.out.println(fileName + "のフォーマットが不正です");
 					return false;
 				}
 				// 支店コードが3桁の数字のみであるかチェック
 				// ^...先頭 {}...直前の数字の回数 $...末尾
 				if (!(data[0].matches(lstFileFormat))) {
-					System.out.println("支店定義ファイルのフォーマットが不正です");
+					System.out.println(fileName + "のフォーマットが不正です");
 					return false;
 				}
 				fileMap.put(data[0], data[1]);
