@@ -37,12 +37,17 @@ public class CalculateSales {
 			return;
 		}
 
-		if((input(args[0], "branch.lst",  "^[0-9]{3}$", branchFile, branchMoney,
-				"支店定義ファイル")) == false) {
+		if (args[0] == null) {
+			System.out.println(args[0] + "が存在しません");
 			return;
 		}
-		if((input(args[0], "commodity.lst", "^[0-9a-zA-Z]{8}$", commodityFile, commodityMoney,
-				"商品定義ファイル")) == false) {
+
+		if(!(fileInput(args[0], "branch.lst",  "^[0-9]{3}$", branchFile, branchMoney,
+				"支店定義ファイル"))) {
+			return;
+		}
+		if(!(fileInput(args[0], "commodity.lst", "^[0-9a-zA-Z]{8}$", commodityFile, commodityMoney,
+				"商品定義ファイル"))) {
 			return;
 		}
 
@@ -103,24 +108,22 @@ public class CalculateSales {
 
 				// 売上ファイルの売上額を支店と商品の合計金額に加算する
 				// 支店金額マップ.put((支店コード),(支店金額 + 売上額);
-				// 支店コード rcd3Lines.get(0) = branchData[0]
+				// 支店コード rcd3Lines.get(0) = data[0]
 				// 支店金額は支店金額マップの value なので(金額マップ.get(object k))
-				long branchSalesLong = Long.parseLong(rcd3Lines.get(2));
-				branchMoney.put((rcd3Lines.get(0)), (branchMoney.get(rcd3Lines.get(0))) + branchSalesLong);
-				String branchSales = String.valueOf(branchSalesLong);
-				// matches は String型のみ
-				if (branchSales.matches("^[0-9]{10,}$")) {
+				long branchSalesLong = branchMoney.get(rcd3Lines.get(0)) +  Long.parseLong(rcd3Lines.get(2));
+				if(branchSalesLong > 10000000000L) {
 					System.out.println("合計金額が10桁を超えました");
 					return;
 				}
+				branchMoney.put((rcd3Lines.get(0)),  branchSalesLong);
 
-				long commoditySalesLong = Long.parseLong(rcd3Lines.get(2));
-				commodityMoney.put((rcd3Lines.get(1)), (commodityMoney.get(rcd3Lines.get(1))) + commoditySalesLong);
-				String commoditySales = String.valueOf(commoditySalesLong);
-				if (branchSales.matches("^[0-9]{10,}$")) {
+
+				long commoditySalesLong = commodityMoney.get(rcd3Lines.get(1)) +  Long.parseLong(rcd3Lines.get(2));
+				if (commoditySalesLong > 10000000000L) {
 					System.out.println("合計金額が10桁を超えました");
 					return;
 				}
+				commodityMoney.put((rcd3Lines.get(0)), commoditySalesLong);
 			} catch (IOException e) {
 				System.out.println("予期せぬエラーが発生しました");
 				return;
@@ -139,16 +142,16 @@ public class CalculateSales {
 			}
 		}
 
-		if((output(branchMoney, args[0], "branch.out", branchFile)) == false) {
+		if(!(calculateOutput(branchMoney, args[0], "branch.out", branchFile))) {
 			return;
 		}
-		if((output(commodityMoney, args[0], "commodity.out", commodityFile)) == false) {
+		if(!(calculateOutput(commodityMoney, args[0], "commodity.out", commodityFile))) {
 			return;
 		}
 	}
 
 
-	public static boolean input(String CalculateSalesDir, String lstFile,String lstFileFormat,
+	public static boolean fileInput(String CalculateSalesDir, String lstFile,String lstFileFormat,
 			HashMap<String, String> fileMap, HashMap<String, Long> moneyMap, String fileName) {
 
 		BufferedReader br = null;
@@ -196,7 +199,7 @@ public class CalculateSales {
 		return true;
 	}
 
-	public static boolean output(HashMap<String, Long> moneyMap, String CalculateSalesDir,
+	public static boolean calculateOutput(HashMap<String, Long> moneyMap, String CalculateSalesDir,
 			String outFile, HashMap<String, String> FileMap) {
 
 		List<Map.Entry<String, Long>>sortMoneyMap  = new ArrayList<Map.Entry<String, Long>>(moneyMap.entrySet());
